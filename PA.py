@@ -18,6 +18,10 @@ def calculations(df,Dem_name,Rep_name):
     df[Rep_name]=df[Rep_name].astype(int)
     
     df.insert(3, "Total", df[Dem_name]+df[Rep_name])
+    df.insert(3, "Net Votes", df[Dem_name]-df[Rep_name])
+    df.insert(5, Dem_name+" Pct", df[Dem_name]/(df[Dem_name]+df[Rep_name]))
+    df.insert(6, Rep_name+" Pct", df[Rep_name]/(df[Dem_name]+df[Rep_name]))
+    df.insert(7, "Margin",(df[Dem_name]/(df[Dem_name]+df[Rep_name])) -(df[Rep_name]/(df[Dem_name]+df[Rep_name])))
 
 class race:
     mail=[]
@@ -79,7 +83,7 @@ Shapiro= df.loc[(df['Office Name']  =='Governor' ) & (df['Party Name']  =='Democ
 Mastriano= df.loc[(df['Office Name']  =='Governor' ) & (df['Party Name']  =='Republican' )]
 Senate = assign_race(Shapiro,Mastriano,"Shapiro","Mastriano")
 
-print(President.mail)
+
 writer = pd.ExcelWriter('PA_Results.xlsx', engine='xlsxwriter')
 
 President.mail.to_excel(writer,sheet_name="Mail",index=False)
