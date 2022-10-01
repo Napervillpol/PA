@@ -1,5 +1,16 @@
 
 import pandas as pd
+
+def write_to_excel(race,race_name):
+    writer = pd.ExcelWriter('PA_'+race_name+ '.xlsx', engine='xlsxwriter')
+
+    race.mail.to_excel(writer,sheet_name="Mail",index=False)
+    race.eday.to_excel(writer,sheet_name="Election Day",index=False)
+    race.prov.to_excel(writer,sheet_name="Provisonal",index=False)
+    race.total.to_excel(writer,sheet_name="Total",index=False)
+
+    writer.save()
+
 def safediv(x,y):
     try:
         return x/y
@@ -109,12 +120,6 @@ Shapiro= df.loc[(df['Office Name']  =='Governor' ) & (df['Party Name']  =='Democ
 Mastriano= df.loc[(df['Office Name']  =='Governor' ) & (df['Party Name']  =='Republican' )]
 Governor = assign_race(Shapiro,Mastriano,"Shapiro","Mastriano")
 
-
-writer = pd.ExcelWriter('PA_President.xlsx', engine='xlsxwriter')
-
-President.mail.to_excel(writer,sheet_name="Mail",index=False)
-President.eday.to_excel(writer,sheet_name="Election Day",index=False)
-President.prov.to_excel(writer,sheet_name="Provisonal",index=False)
-President.total.to_excel(writer,sheet_name="Total",index=False)
-
-writer.save()
+write_to_excel(President,"President")
+write_to_excel(Senate,"Senate")
+write_to_excel(Governor,"Governor")
