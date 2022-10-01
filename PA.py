@@ -18,7 +18,7 @@ def calculations(df,Dem_name,Rep_name):
     df[Rep_name]=df[Rep_name].astype(int)
     
     df.insert(3, "Total", df[Dem_name]+df[Rep_name])
-    df.insert(3, "Net Votes", df[Dem_name]-df[Rep_name])
+    df.insert(4, "Net Votes", df[Dem_name]-df[Rep_name])
     df.insert(5, Dem_name+" Pct", df[Dem_name]/(df[Dem_name]+df[Rep_name]))
     df.insert(6, Rep_name+" Pct", df[Rep_name]/(df[Dem_name]+df[Rep_name]))
     df.insert(7, "Margin",(df[Dem_name]/(df[Dem_name]+df[Rep_name])) -(df[Rep_name]/(df[Dem_name]+df[Rep_name])))
@@ -56,7 +56,7 @@ def assign_race(Dem,Rep,Dem_name,Rep_name):
     Dem_prov= Dem[['County Name','Provisional Votes']]
     Dem_prov.columns=['County',Dem_name]
 
-    Rep_prov = Trump[['County Name','Provisional Votes']]
+    Rep_prov = Rep[['County Name','Provisional Votes']]
     Rep_prov.columns=['County',Rep_name]
     prov = Dem_prov.merge(Rep_prov, on='County')
     calculations(prov,Dem_name,Rep_name)
@@ -81,13 +81,13 @@ Senate = assign_race(Fetterman,Oz,"Fetterman","Oz")
 # 2022 Gov
 Shapiro= df.loc[(df['Office Name']  =='Governor' ) & (df['Party Name']  =='Democratic' )]
 Mastriano= df.loc[(df['Office Name']  =='Governor' ) & (df['Party Name']  =='Republican' )]
-Senate = assign_race(Shapiro,Mastriano,"Shapiro","Mastriano")
+Governor = assign_race(Shapiro,Mastriano,"Shapiro","Mastriano")
 
 
-writer = pd.ExcelWriter('PA_Results.xlsx', engine='xlsxwriter')
+writer = pd.ExcelWriter('PA_Senate.xlsx', engine='xlsxwriter')
 
-President.mail.to_excel(writer,sheet_name="Mail",index=False)
-President.eday.to_excel(writer,sheet_name="Election Day",index=False)
-President.prov.to_excel(writer,sheet_name="Provisonal",index=False)
+Senate.mail.to_excel(writer,sheet_name="Mail",index=False)
+Senate.eday.to_excel(writer,sheet_name="Election Day",index=False)
+Senate.prov.to_excel(writer,sheet_name="Provisonal",index=False)
 
 writer.save()
