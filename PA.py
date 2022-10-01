@@ -34,14 +34,19 @@ def calculate_shift(df_2022,df_2020):
      df_2022.prov.insert(8, "Pct Shift",df_2022.prov["Margin"]-df_2020.prov["Margin"])
      df_2022.prov.insert(9, "Turnout",df_2022.prov["Total"]/df_2020.prov["Total"])
 
+     df_2022.total.insert(8, "Pct Shift",df_2022.total["Margin"]-df_2020.total["Margin"])
+     df_2022.total.insert(9, "Turnout",df_2022.total["Total"]/df_2020.total["Total"])
+
 class race:
     mail=[]
     eday=[]
     prov=[]
-    def __init__(self, mail,eday,prov):
-        self.mail=mail;
-        self.eday=eday;
-        self.prov=prov;
+    total=[]
+    def __init__(self, mail,eday,prov,total):
+        self.mail=mail
+        self.eday=eday
+        self.prov=prov
+        self.total=total
 
 def assign_race(Dem,Rep,Dem_name,Rep_name):
        
@@ -72,7 +77,16 @@ def assign_race(Dem,Rep,Dem_name,Rep_name):
     prov = Dem_prov.merge(Rep_prov, on='County')
     calculations(prov,Dem_name,Rep_name)
 
-    Race = race(mail,eday,prov)
+     #Total
+    Dem_total= Dem[['County Name','Votes']]
+    Dem_total.columns=['County',Dem_name]
+
+    Rep_total = Rep[['County Name','Votes']]
+    Rep_total.columns=['County',Rep_name]
+    total = Dem_total.merge(Rep_total, on='County')
+    calculations(total,Dem_name,Rep_name)
+
+    Race = race(mail,eday,prov,total)
     return Race;
 
 
@@ -96,10 +110,11 @@ Mastriano= df.loc[(df['Office Name']  =='Governor' ) & (df['Party Name']  =='Rep
 Governor = assign_race(Shapiro,Mastriano,"Shapiro","Mastriano")
 
 
-writer = pd.ExcelWriter('PA_Senate.xlsx', engine='xlsxwriter')
+writer = pd.ExcelWriter('PA_President.xlsx', engine='xlsxwriter')
 
-Senate.mail.to_excel(writer,sheet_name="Mail",index=False)
-Senate.eday.to_excel(writer,sheet_name="Election Day",index=False)
-Senate.prov.to_excel(writer,sheet_name="Provisonal",index=False)
+President.mail.to_excel(writer,sheet_name="Mail",index=False)
+President.eday.to_excel(writer,sheet_name="Election Day",index=False)
+President.prov.to_excel(writer,sheet_name="Provisonal",index=False)
+President.total.to_excel(writer,sheet_name="Total",index=False)
 
 writer.save()
