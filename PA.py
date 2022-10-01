@@ -51,13 +51,16 @@ df2= pd.read_csv('PA_2020.csv');
 # 2020 President
 Biden= df2.loc[(df2['Office Name']  =='President of the United States' ) & (df2['Party Name']  =='Democratic' )];
 Trump= df2.loc[(df2['Office Name']  =='President of the United States' ) & (df2['Party Name']  =='Republican' )];
-
+President = assign_race(Biden,Trump,"Biden","Trump");
 
 # 2022 Senate
 Fetterman= df.loc[(df['Office Name']  =='United States Senator' ) & (df['Party Name']  =='Democratic' )];
 Oz= df.loc[(df['Office Name']  =='United States Senator' ) & (df['Party Name']  =='Republican' )];
-
-President = assign_race(Biden,Trump,"Biden","Trump");
 Senate = assign_race(Fetterman,Oz,"Fetterman","Oz");
+
+# 2022 Gov
+Shapiro= df.loc[(df['Office Name']  =='Governor' ) & (df['Party Name']  =='Democratic' )];
+Mastriano= df.loc[(df['Office Name']  =='Governor' ) & (df['Party Name']  =='Republican' )];
+Senate = assign_race(Shapiro,Mastriano,"Shapiro","Mastriano");
 
 print(President.prov)
