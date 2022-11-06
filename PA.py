@@ -1,5 +1,10 @@
 
 import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sb
+sb.set()
 pd.options.mode.chained_assignment = None
 
 def write_to_excel(race,race_name):
@@ -54,6 +59,12 @@ def MailProjection(df2,df3):
     #print(df2.mail)
     #print(df3)
     df2.mail= df2.mail.merge(df3,on="County")
+    df2.mail.insert(11,"Outstanding Ballots",df2.mail["Accepted Ballots"]-df2.mail["Total"])
+    df2.mail.insert(12,"Dem Oustanding",round(df2.mail.iloc[:, 5]*df2.mail["Outstanding Ballots"],0))
+    df2.mail.insert(13,"Rep Oustanding",round(df2.mail.iloc[:, 6]*df2.mail["Outstanding Ballots"],0))
+    df2.mail.insert(14,"Net Oustanding",df2.mail["Dem Oustanding"]-df2.mail["Rep Oustanding"])
+
+  
 
 def addTotalVotes(df,df1,df2):
     
@@ -97,8 +108,7 @@ def addTotalVotes(df,df1,df2):
     Senate_race = Senate_race.groupby(Senate_race['County Name'])[['Votes','Election Day Votes','Mail Votes','Provisional Votes']].sum().reset_index()
     Governor_race =  Governor_race.groupby(Governor_race['County Name'])[['Votes','Election Day Votes','Mail Votes','Provisional Votes']].sum().reset_index()
 
-    print(Senate_race)
-    print(Governor_race)
+  
     
     df1.total['Total'] =Senate_race['Votes']
     df1.mail['Total'] =Senate_race['Mail Votes']
@@ -192,9 +202,21 @@ calculate_shift(Governor,President)
 
 addTotalVotes(df,Senate,Governor)
 MailProjection(Senate,df3)
+MailProjection(Governor,df3)
+
 
 write_to_excel(President,"President")
 write_to_excel(Senate,"Senate")
 write_to_excel(Governor,"Governor")
 
+plt.title('Senate (Mail)')
+plt.scatter(Senate.mail['Fetterman Pct'],President.mail['Biden Pct'])
 
+x = Senate.mail['Fetterman Pct'].dropna().reset_index()
+y = President.mail['Biden Pct'].reset_index()
+
+Sen_graph =x.merge(y,on="index")
+Sen_graph=Sen_graph.drop(columns=['index'])
+
+sb.regplot(x="Fetterman Pct",y="Biden Pct",fit_reg=True,data=Sen_graph)
+plt.show()
