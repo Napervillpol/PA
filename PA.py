@@ -185,11 +185,18 @@ def assign_race(Dem,Rep,Dem_name,Rep_name):
 
 def Statmodels(President,Current_race,Current_name,Title,w):
     
+    print(w)
+    Current_race=Current_race.drop(columns =['Total'])
+    Scatter = President.merge(Current_race,on="County")
+    
+ 
     plt.title(Title)
     plt.xlabel("Biden Pct")
     plt.ylabel(Current_name)
-    plt.scatter(President['Biden Pct'],Current_race[Current_name],w)
 
+    plt.scatter(Scatter['Biden Pct'],Scatter[Current_name],w)
+   
+   
     x = President['Biden Pct'].reset_index()
     y = Current_race[Current_name].dropna().reset_index()
     w = w.dropna().reset_index()
@@ -205,9 +212,7 @@ def Statmodels(President,Current_race,Current_name,Title,w):
     y = Current_graph[Current_name]
     z = Current_graph.iloc[:,2]
     
-   
-    
-    
+ 
     wls_model = sm.WLS(y,x,z)
     results = wls_model.fit()
     
@@ -260,6 +265,7 @@ MailProjection(Governor,df3)
 EdayProjection(Senate,df4)
 EdayProjection(Governor,df4)
 
+President.total =President.total.merge(df4,on = "County")
 
 write_to_excel(President,"President")
 write_to_excel(Senate,"Senate")
@@ -295,13 +301,15 @@ print("Election Day Counted: " + "{:,} ".format(Governor.eday["Total"].sum()))
 print("ELection Day Breakdown " + " Shapiro {:.1%} Mastriano {:.1%}".format(safediv(Governor.eday["Shapiro"].sum(),Governor.eday["Total"].sum()),safediv(Governor.eday["Mastriano"].sum(),Governor.eday["Total"].sum())))
 print("Election Remaining Estimate Net Vote: " + "{:,} ".format(Governor.eday["Possible Oustanding"].sum()))
 
-
 President.total.merge(df4,on = "County")
+
+
+
 
 Statmodels(President.mail,Senate.mail,"Fetterman Pct","Mail",Senate.mail['Accepted Ballots']/1000)
 Statmodels(President.eday,Senate.eday,"Fetterman Pct","Election day",President.eday['Total']/1000)
-Statmodels(President.total,Senate.total,"Fetterman Pct","Total",President.total['Total']/2000)
+Statmodels(President.total,Senate.total.loc[(Senate.total['Fully Reported']  ==1 )],"Fetterman Pct","Total",President.total.loc[(President.total['Fully Reported']  ==1 )]['Total']/2000)
 
 Statmodels(President.mail,Governor.mail,"Shapiro Pct","Mail",Governor.mail['Accepted Ballots']/1000)
 Statmodels(President.eday,Governor.eday,"Shapiro Pct","Election day",President.eday['Total']/1000)
-Statmodels(President.total,Governor.total,"Shapiro Pct","Total",President.total['Total']/2000)
+Statmodels(President.total,Governor.total.loc[(Governor.total['Fully Reported']  ==1 )],"Shapiro Pct","Total",President.total.loc[(President.total['Fully Reported']  ==1 )]['Total']/2000)
