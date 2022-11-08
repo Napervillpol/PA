@@ -3,8 +3,7 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sb
-sb.set()
+import statsmodels.api as sm
 pd.options.mode.chained_assignment = None
 
 def write_to_excel(race,race_name):
@@ -64,7 +63,16 @@ def MailProjection(df2,df3):
     df2.mail.insert(13,"Rep Oustanding",round(df2.mail.iloc[:, 6]*df2.mail["Outstanding Ballots"],0))
     df2.mail.insert(14,"Net Oustanding",df2.mail["Dem Oustanding"]-df2.mail["Rep Oustanding"])
 
-  
+def EdayProjection(df2,df3):
+    #print(df2.mail)
+    #print(df3)
+    df2.eday= df2.eday.merge(df3,on="County")
+    df2.eday.insert(13,"Possible Oustanding",df2.eday["Fully Reported"]*df2.eday["Net Votes 2020"])
+    
+    df2.total= df2.total.merge(df3,on="County")
+   
+    df2.total= df2.total.drop(columns =['Total 2020', 'Net Votes 2020'])
+   
 
 def addTotalVotes(df,df1,df2):
     
@@ -175,12 +183,46 @@ def assign_race(Dem,Rep,Dem_name,Rep_name):
     Race = race(mail,eday,prov,total)
     return Race;
 
+def Statmodels(President,Current_race,Current_name,Title,w):
+    
+    plt.title(Title)
+    plt.xlabel("Biden Pct")
+    plt.ylabel(Current_name)
+    plt.scatter(President['Biden Pct'],Current_race[Current_name],w)
+
+    x = President['Biden Pct'].reset_index()
+    y = Current_race[Current_name].dropna().reset_index()
+
+
+    Current_graph =x.merge(y,on="index")
+    Current_graph=Current_graph.drop(columns=['index'])
+
+    x = Current_graph['Biden Pct']
+    y = Current_graph[Current_name]
+
+
+    x2 = sm.add_constant(x)
+    wls_model = sm.WLS(y,x2, weights=President['Total'])
+    results = wls_model.fit()
+
+    print(results.summary())
+
+    plt.plot(x,results.fittedvalues)
+
+    x = np.linspace(0,1,5)
+    y = x
+
+    plt.grid()
+    plt.plot(x, y, '-r', label='y=x+1')
+
+
+    plt.show()
 
 #df = pd.read_csv('PA.csv')
 df2= pd.read_csv('PA_2020.csv')
 df3 = pd.read_csv('PA_ABSENTEES.csv')
 df = pd.read_csv('2022General.csv')
-
+df4 = pd.read_csv('PA_EDAY.csv')
 
 # 2020 President
 Biden= df2.loc[(df2['Office Name']  =='President of the United States' ) & (df2['Party Name']  =='Democratic' )]
@@ -204,19 +246,28 @@ addTotalVotes(df,Senate,Governor)
 MailProjection(Senate,df3)
 MailProjection(Governor,df3)
 
+EdayProjection(Senate,df4)
+EdayProjection(Governor,df4)
+
 
 write_to_excel(President,"President")
 write_to_excel(Senate,"Senate")
 write_to_excel(Governor,"Governor")
 
-plt.title('Senate (Mail)')
-plt.scatter(Senate.mail['Fetterman Pct'],President.mail['Biden Pct'])
 
-x = Senate.mail['Fetterman Pct'].dropna().reset_index()
-y = President.mail['Biden Pct'].reset_index()
 
-Sen_graph =x.merge(y,on="index")
-Sen_graph=Sen_graph.drop(columns=['index'])
 
-sb.regplot(x="Fetterman Pct",y="Biden Pct",fit_reg=True,data=Sen_graph)
-plt.show()
+print("Turnout: " + "{:,} ".format(Governor.eday["Total"].sum()+Governor.mail["Accepted Ballots"].sum()))
+print()
+print("Senate")
+print("=============================================")
+print("VBM Counted: " + "{:,} ({:.1%})".format(Governor.mail["Total"].sum(),safediv(Governor.mail["Total"].sum(),Governor.mail["Accepted Ballots"].sum())))
+print("VBM Remaining: " + "{:,} ({:.1%})".format(Governor.mail["Outstanding Ballots"].sum(),safediv(Governor.mail["Outstanding Ballots"].sum(),Governor.mail["Accepted Ballots"].sum())))
+print("VBM Breakdown: " + " Fetterman {:.1%} Oz {:.1%}".format(safediv(Senate.mail["Fetterman"].sum(),Senate.mail["Total"].sum()),safediv(Senate.mail["Oz"].sum(),Senate.mail["Total"].sum())))
+print("VBM Remaining Estimate: " + " Fetterman {:.1%} Oz {:.1%}".format(safediv(Senate.mail["Dem Oustanding"].sum(),Senate.mail["Outstanding Ballots"].sum()),safediv(Senate.mail["Rep Oustanding"].sum(),Senate.mail["Outstanding Ballots"].sum())))
+print("VBM Remaining Estimate Net Vote: " + "{:,} ".format(Senate.mail["Net Oustanding"].sum()))
+
+print("Election Day Counted: " + "{:,} ".format(Governor.eday["Total"].sum()))
+print("ELection Day Breakdown " + " Fetterman {:.1%} Oz {:.1%}".format(safediv(Senate.eday["Fetterman"].sum(),Senate.eday["Total"].sum()),safediv(Senate.eday["Oz"].sum(),Senate.eday["Total"].sum())))
+print("Election Remaining Estimate Net Vote: " + "{:,} ".format(Senate.eday["Possible Oustanding"].sum()))
+
