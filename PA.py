@@ -266,8 +266,21 @@ print("VBM Remaining: " + "{:,} ({:.1%})".format(Governor.mail["Outstanding Ball
 print("VBM Breakdown: " + " Fetterman {:.1%} Oz {:.1%}".format(safediv(Senate.mail["Fetterman"].sum(),Senate.mail["Total"].sum()),safediv(Senate.mail["Oz"].sum(),Senate.mail["Total"].sum())))
 print("VBM Remaining Estimate: " + " Fetterman {:.1%} Oz {:.1%}".format(safediv(Senate.mail["Dem Oustanding"].sum(),Senate.mail["Outstanding Ballots"].sum()),safediv(Senate.mail["Rep Oustanding"].sum(),Senate.mail["Outstanding Ballots"].sum())))
 print("VBM Remaining Estimate Net Vote: " + "{:,} ".format(Senate.mail["Net Oustanding"].sum()))
-
+print("=============================================")
 print("Election Day Counted: " + "{:,} ".format(Governor.eday["Total"].sum()))
 print("ELection Day Breakdown " + " Fetterman {:.1%} Oz {:.1%}".format(safediv(Senate.eday["Fetterman"].sum(),Senate.eday["Total"].sum()),safediv(Senate.eday["Oz"].sum(),Senate.eday["Total"].sum())))
 print("Election Remaining Estimate Net Vote: " + "{:,} ".format(Senate.eday["Possible Oustanding"].sum()))
+
+print()
+print("Governor")
+print("=============================================")
+print("VBM Counted: " + "{:,} ({:.1%})".format(Governor.mail["Total"].sum(),safediv(Governor.mail["Total"].sum(),Governor.mail["Accepted Ballots"].sum())))
+print("VBM Remaining: " + "{:,} ({:.1%})".format(Governor.mail["Outstanding Ballots"].sum(),safediv(Governor.mail["Outstanding Ballots"].sum(),Governor.mail["Accepted Ballots"].sum())))
+print("VBM Breakdown: " + " Shapiro {:.1%} Mastriano {:.1%}".format(safediv(Governor.mail["Shapiro"].sum(),Governor.mail["Total"].sum()),safediv(Governor.mail["Mastriano"].sum(),Senate.mail["Total"].sum())))
+print("VBM Remaining Estimate: " + " Shapiro {:.1%} Mastriano {:.1%}".format(safediv(Governor.mail["Dem Oustanding"].sum(),Governor.mail["Outstanding Ballots"].sum()),safediv(Governor.mail["Rep Oustanding"].sum(),Governor.mail["Outstanding Ballots"].sum())))
+print("VBM Remaining Estimate Net Vote: " + "{:,} ".format(Governor.mail["Net Oustanding"].sum()))
+print("=============================================")
+print("Election Day Counted: " + "{:,} ".format(Governor.eday["Total"].sum()))
+print("ELection Day Breakdown " + " Shapiro {:.1%} Mastriano {:.1%}".format(safediv(Governor.eday["Shapiro"].sum(),Governor.eday["Total"].sum()),safediv(Governor.eday["Mastriano"].sum(),Governor.eday["Total"].sum())))
+print("Election Remaining Estimate Net Vote: " + "{:,} ".format(Governor.eday["Possible Oustanding"].sum()))
 
